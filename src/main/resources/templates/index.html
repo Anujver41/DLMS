@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Home')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section text-center text-lg-start mb-5">
+        <div class="container py-4">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-semibold mb-3">
+                        <i class="bi bi-stars me-1"></i> Smart Digital Library System
+                    </span>
+                    <h1 class="display-4 fw-bold mb-3 text-white">
+                        Discover, Borrow & Expand Your Knowledge.
+                    </h1>
+                    <p class="lead text-light text-opacity-75 mb-4">
+                        Instant access to hundreds of textbooks, journals, engineering resources, and literature. Borrow seamlessly with automated due tracking and advance queue reservations.
+                    </p>
+                    
+                    <!-- Search Bar Form -->
+                    <form th:action="@{/catalog}" method="get" class="d-flex flex-column flex-sm-row gap-2 bg-white p-2 rounded-4 shadow-lg">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="keyword" class="form-control border-0 shadow-none ps-0"
+                                   placeholder="Search by title, author, or ISBN...">
+                        </div>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">
+                            Find Books
+                        </button>
+                    </form>
+                </div>
+                <div class="col-lg-5 text-center">
+                    <div class="p-4 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-25 shadow backdrop-blur">
+                        <i class="bi bi-book-half text-warning display-1 mb-3 d-inline-block"></i>
+                        <h4 class="text-white fw-bold">Online Portal Open 24/7</h4>
+                        <p class="text-light text-opacity-75 small mb-3">
+                            Check book availability, renew loans, request advance bookings, or submit librarian inquiries anytime.
+                        </p>
+                        <a th:href="@{/catalog}" class="btn btn-warning text-dark fw-bold px-4">
+                            Explore Full Catalog <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="container mb-5">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="card p-3 shadow-sm border-0 stat-card">
+                    <h3 class="fw-bold text-primary mb-1" th:text="${totalBooks}">0</h3>
+                    <span class="text-muted small">Total Book Titles</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card p-3 shadow-sm border-0 stat-card success">
+                    <h3 class="fw-bold text-success mb-1" th:text="${availableBooks}">0</h3>
+                    <span class="text-muted small">Available Copies</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card p-3 shadow-sm border-0 stat-card warning">
+                    <h3 class="fw-bold text-warning mb-1">14 Days</h3>
+                    <span class="text-muted small">Standard Loan Duration</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card p-3 shadow-sm border-0 stat-card danger">
+                    <h3 class="fw-bold text-danger mb-1">₹5.00</h3>
+                    <span class="text-muted small">Daily Overdue Rate</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Books -->
+    <section class="container mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">Featured Titles</h3>
+                <p class="text-muted small mb-0">Popular books ready for issue or advance reservation</p>
+            </div>
+            <a th:href="@{/catalog}" class="btn btn-outline-primary btn-sm fw-semibold">
+                View All Books <i class="bi bi-chevron-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <div th:each="book : ${featuredBooks}" class="col-md-6 col-lg-4">
+                <div class="card h-100 book-card shadow-sm p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold"
+                              th:text="${book.category.name}">Category</span>
+                        <span th:if="${book.availableQuantity > 0}" class="badge badge-in-stock px-2 py-1">
+                            <i class="bi bi-check-circle me-1"></i> <span th:text="${book.availableQuantity}">1</span> in stock
+                        </span>
+                        <span th:if="${book.availableQuantity == 0}" class="badge badge-out-of-stock px-2 py-1">
+                            <i class="bi bi-x-circle me-1"></i> Out of stock
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold mb-1 text-dark" th:text="${book.title}">Book Title</h5>
+                    <p class="text-muted small mb-3">By <span class="fw-medium text-dark" th:text="${book.author}">Author</span></p>
+                    
+                    <p class="small text-secondary flex-grow-1" th:text="${#strings.abbreviate(book.description, 110)}">
+                        Description summary here...
+                    </p>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                        <small class="text-muted">
+                            <i class="bi bi-upc me-1"></i> <span th:text="${book.isbn}">ISBN</span>
+                        </small>
+
+                        <div sec:authorize="isAuthenticated()">
+                            <form th:if="${book.availableQuantity > 0}" th:action="@{'/books/issue/' + ${book.id}}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-primary btn-sm px-3">
+                                    <i class="bi bi-arrow-right-circle me-1"></i> Issue
+                                </button>
+                            </form>
+                            <form th:if="${book.availableQuantity == 0}" th:action="@{'/reserve/' + ${book.id}}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-warning text-dark btn-sm px-3">
+                                    <i class="bi bi-clock-history me-1"></i> Reserve
+                                </button>
+                            </form>
+                        </div>
+
+                        <div sec:authorize="!isAuthenticated()">
+                            <a th:href="@{/login}" class="btn btn-outline-secondary btn-sm px-3">
+                                Sign In to Issue
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
+

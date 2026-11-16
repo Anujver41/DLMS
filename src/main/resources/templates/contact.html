@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Contact Librarian')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="main-content py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card p-4 p-md-5 shadow-sm border-0">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-chat-left-text text-primary display-4 mb-2 d-inline-block"></i>
+                        <h3 class="fw-bold text-dark">Librarian Support & Inquiry</h3>
+                        <p class="text-muted small">
+                            Have questions regarding book availability, membership rules, or fine disputes? Drop us a query below.
+                        </p>
+                    </div>
+
+                    <form th:action="@{/contact}" th:object="${contactQuery}" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label fw-semibold small">Your Name</label>
+                                <input type="text" id="name" th:field="*{name}" class="form-control"
+                                       placeholder="Enter your full name" required>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="email" class="form-label fw-semibold small">Email Address</label>
+                                <input type="email" id="email" th:field="*{email}" class="form-control"
+                                       placeholder="your.email@example.com" required>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="subject" class="form-label fw-semibold small">Inquiry Subject</label>
+                                <input type="text" id="subject" th:field="*{subject}" class="form-control"
+                                       placeholder="e.g. Request to acquire Distributed Systems book, Fine clearance query..." required>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="message" class="form-label fw-semibold small">Detailed Message</label>
+                                <textarea id="message" th:field="*{message}" class="form-control" rows="5"
+                                          placeholder="Type your question or query in detail here..." required></textarea>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('message')}" th:errors="*{message}"></div>
+                            </div>
+
+                            <div class="col-12 mt-4 text-end">
+                                <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
+                                    <i class="bi bi-send me-1"></i> Submit Inquiry
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
+

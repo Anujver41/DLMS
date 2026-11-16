@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Fine Management')}"></head>
+<body class="bg-light">
+
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="main-content py-4">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-currency-rupee text-danger me-2"></i> Overdue Fine & Penalty Management
+                </h3>
+                <p class="text-muted small mb-0">Record cash/UPI receipt and mark overdue fines as paid</p>
+            </div>
+            <a th:href="@{/admin/dashboard}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm border-0 stat-card danger">
+                    <span class="text-muted small d-block">Outstanding / Unpaid Fines</span>
+                    <h3 class="fw-bold text-danger mb-0">₹<span th:text="${totalUnpaid}">0.00</span></h3>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm border-0 stat-card success">
+                    <span class="text-muted small d-block">Total Settled / Collected Fines</span>
+                    <h3 class="fw-bold text-success mb-0">₹<span th:text="${totalPaid}">0.00</span></h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 shadow-sm border-0 bg-white">
+            <div th:if="${#lists.isEmpty(fines)}" class="text-center py-5 text-muted">
+                <i class="bi bi-check-circle display-4 d-block mb-2 text-success"></i>
+                <p class="mb-0">No fine records in the system. All members are cleared.</p>
+            </div>
+
+            <div class="table-responsive" th:unless="${#lists.isEmpty(fines)}">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Member</th>
+                            <th>Book Title</th>
+                            <th>Overdue Days</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Paid Date</th>
+                            <th class="text-end">Settlement Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="fine : ${fines}">
+                            <td class="text-muted small" th:text="${fine.id}">1</td>
+                            <td>
+                                <strong class="text-dark" th:text="${fine.user.fullName}">Name</strong>
+                                <div class="small text-muted" th:text="${fine.user.email}">email</div>
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-dark" th:text="${fine.bookIssue.book.title}">Book Title</span>
+                            </td>
+                            <td class="small text-muted">
+                                <span th:text="${fine.overdueDays}">0</span> days (₹5/day)
+                            </td>
+                            <td>
+                                <strong class="text-danger fs-6">₹<span th:text="${fine.fineAmount}">0.00</span></strong>
+                            </td>
+                            <td>
+                                <span th:if="${fine.status.name() == 'UNPAID'}" class="badge bg-danger">UNPAID</span>
+                                <span th:if="${fine.status.name() == 'PAID'}" class="badge bg-success">PAID</span>
+                            </td>
+                            <td class="small text-muted">
+                                <span th:if="${fine.paidDate != null}" th:text="${#temporals.format(fine.paidDate, 'yyyy-MM-dd HH:mm')}">Date</span>
+                                <span th:if="${fine.paidDate == null}" class="text-muted">-</span>
+                            </td>
+                            <td class="text-end">
+                                <form th:if="${fine.status.name() == 'UNPAID'}" th:action="@{'/admin/fines/pay/' + ${fine.id}}" method="post" class="d-inline"
+                                      onsubmit="return confirm('Confirm payment received for this fine?');">
+                                    <button type="submit" class="btn btn-success btn-sm fw-semibold">
+                                        <i class="bi bi-cash-coin me-1"></i> Mark as Paid
+                                    </button>
+                                </form>
+                                <span th:if="${fine.status.name() == 'PAID'}" class="text-success small fw-medium">
+                                    <i class="bi bi-check-all me-1"></i> Settled
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
+

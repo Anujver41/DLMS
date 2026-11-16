@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sign In')}"></head>
+<body class="bg-light">
+
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="main-content d-flex align-items-center py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card p-4 p-md-5 shadow-sm border-0 rounded-4">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-circle text-primary display-4 mb-2 d-inline-block"></i>
+                        <h3 class="fw-bold text-dark">Welcome Back</h3>
+                        <p class="text-muted small">Sign in to your DLMS Library account</p>
+                    </div>
+
+                    <!-- Alerts for login params -->
+                    <div th:if="${param.error}" class="alert alert-danger py-2 small" role="alert">
+                        <i class="bi bi-exclamation-circle-fill me-1"></i> Invalid email or password.
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-info py-2 small" role="alert">
+                        <i class="bi bi-info-circle-fill me-1"></i> You have been logged out successfully.
+                    </div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-semibold small">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-envelope text-muted"></i></span>
+                                <input type="email" id="username" name="username" class="form-control"
+                                       placeholder="name@example.com" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold small">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-key text-muted"></i></span>
+                                <input type="password" id="password" name="password" class="form-control"
+                                       placeholder="••••••••" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-3">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                        </button>
+                    </form>
+
+                    <!-- Quick Demo Credentials helper -->
+                    <div class="card bg-light border-0 p-3 rounded-3 mt-2">
+                        <p class="fw-bold small mb-1 text-secondary"><i class="bi bi-info-circle me-1"></i> Quick Demo Logins:</p>
+                        <ul class="list-unstyled small mb-0 text-muted">
+                            <li><strong>Admin:</strong> <code>admin@dlms.com</code> / <code>admin123</code></li>
+                            <li><strong>User:</strong> <code>user@dlms.com</code> / <code>user123</code></li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <span class="text-muted small">Don't have an account yet? </span>
+                        <a th:href="@{/register}" class="small fw-semibold text-primary text-decoration-none">Create Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
+

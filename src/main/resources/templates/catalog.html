@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Book Catalog')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="main-content py-4">
+    <div class="container">
+        <!-- Search and Filter Header -->
+        <div class="card p-4 shadow-sm mb-4 border-0">
+            <h3 class="fw-bold mb-3 text-dark"><i class="bi bi-bookshelf text-primary me-2"></i>Library Catalog</h3>
+            
+            <form th:action="@{/catalog}" method="get">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-7">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" name="keyword" th:value="${keyword}"
+                                   class="form-control border-start-0"
+                                   placeholder="Search by title, author, or ISBN...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="categoryId" class="form-select">
+                            <option value="">All Categories</option>
+                            <option th:each="cat : ${categories}"
+                                    th:value="${cat.id}"
+                                    th:text="${cat.name}"
+                                    th:selected="${selectedCategory != null && selectedCategory == cat.id}">
+                                Category Name
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button type="submit" class="btn btn-primary fw-semibold">
+                            <i class="bi bi-funnel me-1"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Result Stats -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="text-muted small mb-0">
+                Found <strong class="text-dark" th:text="${books.size()}">0</strong> books in the library.
+            </p>
+            <a th:if="${keyword != null or selectedCategory != null}" th:href="@{/catalog}" class="btn btn-link btn-sm text-decoration-none">
+                <i class="bi bi-x-circle me-1"></i> Clear filters
+            </a>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(books)}" class="card p-5 text-center shadow-sm border-0 my-4">
+            <i class="bi bi-journal-x display-3 text-muted mb-3"></i>
+            <h5 class="fw-bold text-dark">No books match your criteria</h5>
+            <p class="text-muted small">Try searching with a different title, author name, or category.</p>
+            <div>
+                <a th:href="@{/catalog}" class="btn btn-outline-primary btn-sm">Reset Search</a>
+            </div>
+        </div>
+
+        <!-- Book Grid -->
+        <div class="row g-4" th:unless="${#lists.isEmpty(books)}">
+            <div th:each="book : ${books}" class="col-md-6 col-lg-4">
+                <div class="card h-100 book-card shadow-sm p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold"
+                              th:text="${book.category.name}">Category</span>
+                        <span th:if="${book.availableQuantity > 0}" class="badge badge-in-stock px-2 py-1">
+                            <i class="bi bi-check-circle me-1"></i> <span th:text="${book.availableQuantity}">1</span> / <span th:text="${book.totalQuantity}">5</span> Available
+                        </span>
+                        <span th:if="${book.availableQuantity == 0}" class="badge badge-out-of-stock px-2 py-1">
+                            <i class="bi bi-x-circle me-1"></i> All Issued
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold mb-1 text-dark" th:text="${book.title}">Book Title</h5>
+                    <p class="text-muted small mb-2">By <span class="fw-medium text-dark" th:text="${book.author}">Author Name</span></p>
+
+                    <div class="d-flex gap-2 small text-muted mb-3">
+                        <span><i class="bi bi-upc me-1"></i> <span th:text="${book.isbn}">ISBN</span></span>
+                        <span th:if="${book.rackNumber != null}">&bull; <i class="bi bi-geo-alt me-1"></i> <span th:text="${book.rackNumber}">RACK</span></span>
+                    </div>
+
+                    <p class="small text-secondary flex-grow-1" th:text="${book.description}">
+                        Detailed description of the book content and syllabus...
+                    </p>
+
+                    <!-- Actions -->
+                    <div class="pt-3 border-top mt-auto d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <span th:if="${book.availableQuantity > 0}" class="text-success fw-medium">
+                                <i class="bi bi-clock-history me-1"></i> 14 days loan
+                            </span>
+                            <span th:if="${book.availableQuantity == 0}" class="text-warning fw-medium">
+                                <i class="bi bi-hourglass-split me-1"></i> Reserved queue
+                            </span>
+                        </div>
+
+                        <!-- Authenticated User Actions -->
+                        <div sec:authorize="isAuthenticated()">
+                            <form th:if="${book.availableQuantity > 0}" th:action="@{'/books/issue/' + ${book.id}}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-primary btn-sm px-3 fw-semibold">
+                                    <i class="bi bi-arrow-right-circle me-1"></i> Issue Book
+                                </button>
+                            </form>
+                            <form th:if="${book.availableQuantity == 0}" th:action="@{'/reserve/' + ${book.id}}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-warning text-dark btn-sm px-3 fw-semibold">
+                                    <i class="bi bi-bookmark-plus me-1"></i> Advance Book
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Unauthenticated User Prompt -->
+                        <div sec:authorize="!isAuthenticated()">
+                            <a th:href="@{/login}" class="btn btn-outline-secondary btn-sm px-3">
+                                <i class="bi bi-lock me-1"></i> Sign In to Issue
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
+

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Support Inquiries')}"></head>
+<body class="bg-light">
+
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="main-content py-4">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-chat-left-dots text-primary me-2"></i> Member Queries & Help Tickets
+                </h3>
+                <p class="text-muted small mb-0">Inquiries submitted by members through the library contact portal</p>
+            </div>
+            <a th:href="@{/admin/dashboard}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+        </div>
+
+        <div class="card p-4 shadow-sm border-0 bg-white">
+            <div th:if="${#lists.isEmpty(queries)}" class="text-center py-5 text-muted">
+                <i class="bi bi-envelope-check display-4 d-block mb-2 text-secondary"></i>
+                <p class="mb-0">No member support inquiries found.</p>
+            </div>
+
+            <div class="table-responsive" th:unless="${#lists.isEmpty(queries)}">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Sender</th>
+                            <th>Subject</th>
+                            <th>Message</th>
+                            <th>Submitted On</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="query : ${queries}">
+                            <td class="text-muted small" th:text="${query.id}">1</td>
+                            <td>
+                                <strong class="text-dark" th:text="${query.name}">Sender</strong>
+                                <div class="small text-muted" th:text="${query.email}">email</div>
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-dark" th:text="${query.subject}">Subject</span>
+                            </td>
+                            <td>
+                                <span class="small text-secondary" th:text="${query.message}">Message body</span>
+                                <div th:if="${query.adminReply != null}" class="text-success small mt-1">
+                                    <i class="bi bi-reply-fill me-1"></i> Reply: <span th:text="${query.adminReply}">Reply</span>
+                                </div>
+                            </td>
+                            <td class="small text-muted" th:text="${#temporals.format(query.createdAt, 'yyyy-MM-dd HH:mm')}">Date</td>
+                            <td>
+                                <span th:if="${query.status.name() == 'PENDING'}" class="badge bg-warning text-dark">Pending</span>
+                                <span th:if="${query.status.name() == 'RESOLVED'}" class="badge bg-success">Resolved</span>
+                            </td>
+                            <td class="text-end">
+                                <button th:if="${query.status.name() == 'PENDING'}" type="button" class="btn btn-primary btn-sm"
+                                        data-bs-toggle="modal" th:data-bs-target="'#resolveModal' + ${query.id}">
+                                    <i class="bi bi-check2-circle me-1"></i> Resolve
+                                </button>
+                                <span th:if="${query.status.name() == 'RESOLVED'}" class="text-success small fw-medium">
+                                    <i class="bi bi-check-all me-1"></i> Done
+                                </span>
+
+                                <!-- Resolution Modal -->
+                                <div class="modal fade text-start" th:id="'resolveModal' + ${query.id}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form th:action="@{'/admin/queries/resolve/' + ${query.id}}" method="post">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title fw-bold">Resolve Ticket #<span th:text="${query.id}">1</span></h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="small text-muted mb-2">Subject: <strong th:text="${query.subject}">Subject</strong></p>
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-semibold">Resolution Note / Reply:</label>
+                                                        <textarea name="adminReply" class="form-control" rows="3"
+                                                                  placeholder="e.g. Inquired book has been added to procurement list; member notified."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary btn-sm fw-semibold">Save & Mark Resolved</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
+

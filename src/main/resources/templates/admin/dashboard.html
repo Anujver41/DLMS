@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Admin Dashboard')}"></head>
+<body class="bg-light">
+
+<header th:replace="~{fragments/layout :: navbar}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="main-content py-4">
+    <div class="container">
+        <!-- Admin Header -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-shield-lock-fill text-warning me-2"></i> Librarian Command Center
+                </h3>
+                <p class="text-muted small mb-0">Overview of repository stats, circulating loans, fines, and inquiries</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin/books/new}" class="btn btn-primary btn-sm fw-semibold">
+                    <i class="bi bi-plus-circle me-1"></i> Add New Book
+                </a>
+                <a th:href="@{/admin/issued-books}" class="btn btn-outline-dark btn-sm fw-semibold">
+                    <i class="bi bi-arrow-left-right me-1"></i> View Issued Books
+                </a>
+            </div>
+        </div>
+
+        <!-- 8 KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="card p-3 shadow-sm border-0 stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Total Titles</span>
+                            <h3 class="fw-bold text-primary mb-0" th:text="${totalBooks}">0</h3>
+                        </div>
+                        <i class="bi bi-book fs-1 text-primary opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card p-3 shadow-sm border-0 stat-card success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Available Stock</span>
+                            <h3 class="fw-bold text-success mb-0" th:text="${availableBooks}">0</h3>
+                        </div>
+                        <i class="bi bi-check2-circle fs-1 text-success opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card p-3 shadow-sm border-0 stat-card warning">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Active Loans</span>
+                            <h3 class="fw-bold text-warning mb-0" th:text="${activeLoans}">0</h3>
+                        </div>
+                        <i class="bi bi-arrow-repeat fs-1 text-warning opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card p-3 shadow-sm border-0 stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Registered Members</span>
+                            <h3 class="fw-bold text-dark mb-0" th:text="${totalMembers}">0</h3>
+                        </div>
+                        <i class="bi bi-people fs-1 text-secondary opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card p-3 shadow-sm border-0 stat-card danger">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Unpaid Fines</span>
+                            <h3 class="fw-bold text-danger mb-0">₹<span th:text="${totalUnpaidFines}">0.00</span></h3>
+                        </div>
+                        <i class="bi bi-exclamation-triangle fs-1 text-danger opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card p-3 shadow-sm border-0 stat-card success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Total Fines Collected</span>
+                            <h3 class="fw-bold text-success mb-0">₹<span th:text="${totalPaidFines}">0.00</span></h3>
+                        </div>
+                        <i class="bi bi-currency-rupee fs-1 text-success opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card p-3 shadow-sm border-0 stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Pending Reservations</span>
+                            <h3 class="fw-bold text-dark mb-0" th:text="${pendingReservations}">0</h3>
+                        </div>
+                        <i class="bi bi-bookmark fs-1 text-secondary opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card p-3 shadow-sm border-0 stat-card warning">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small d-block">Pending Queries</span>
+                            <h3 class="fw-bold text-warning mb-0" th:text="${pendingQueries}">0</h3>
+                        </div>
+                        <i class="bi bi-envelope-paper fs-1 text-warning opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Circulation Activities -->
+        <div class="card p-4 shadow-sm border-0 bg-white mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-clock-history text-primary me-2"></i> Recent Borrowing Activity
+                </h5>
+                <a th:href="@{/admin/issued-books}" class="btn btn-outline-secondary btn-sm">
+                    View All Active Loans
+                </a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(recentLoans)}" class="text-center py-4 text-muted">
+                <p class="small mb-0">No active book loans recorded yet.</p>
+            </div>
+
+            <div class="table-responsive" th:unless="${#lists.isEmpty(recentLoans)}">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Borrower</th>
+                            <th>Issue Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="loan : ${recentLoans}">
+                            <td>
+                                <strong class="text-dark" th:text="${loan.book.title}">Title</strong>
+                                <div class="small text-muted">ISBN: <span th:text="${loan.book.isbn}">ISBN</span></div>
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-dark" th:text="${loan.user.fullName}">Name</span>
+                                <div class="small text-muted" th:text="${loan.user.email}">email</div>
+                            </td>
+                            <td class="small text-muted" th:text="${loan.issueDate}">Date</td>
+                            <td class="small fw-semibold" th:text="${loan.dueDate}">Date</td>
+                            <td>
+                                <span th:if="${loan.status.name() == 'ISSUED'}" class="badge bg-primary bg-opacity-10 text-primary">Issued</span>
+                                <span th:if="${loan.status.name() == 'RETURNED'}" class="badge bg-success bg-opacity-10 text-success">Returned</span>
+                                <span th:if="${loan.status.name() == 'OVERDUE'}" class="badge badge-overdue">Overdue</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Fast Links Card -->
+        <div class="row g-3">
+            <div class="col-md-3">
+                <a th:href="@{/admin/books}" class="card p-3 shadow-sm border-0 text-decoration-none text-dark h-100">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-book text-primary fs-3"></i>
+                        <div>
+                            <strong class="d-block">Book Inventory</strong>
+                            <span class="small text-muted">Add, edit, or delete titles</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a th:href="@{/admin/members}" class="card p-3 shadow-sm border-0 text-decoration-none text-dark h-100">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-people text-success fs-3"></i>
+                        <div>
+                            <strong class="d-block">Member Directory</strong>
+                            <span class="small text-muted">Review users & toggle status</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a th:href="@{/admin/fines}" class="card p-3 shadow-sm border-0 text-decoration-none text-dark h-100">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-currency-rupee text-danger fs-3"></i>
+                        <div>
+                            <strong class="d-block">Fine Clearance</strong>
+                            <span class="small text-muted">Mark fines as paid</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a th:href="@{/admin/queries}" class="card p-3 shadow-sm border-0 text-decoration-none text-dark h-100">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-chat-left-dots text-warning fs-3"></i>
+                        <div>
+                            <strong class="d-block">Support Queries</strong>
+                            <span class="small text-muted">Respond to member tickets</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
+
